@@ -22,7 +22,6 @@ ui <- dashboardPage(
     actionButton('fetch', 'Consultar Pokémon')
   ),
   dashboardBody(
-    shinythemes::themeSelector(), 
     tabItems(
       # Pestaña de Inicio
       tabItem(tabName = "inicio",
