@@ -6,6 +6,7 @@ library(shinythemes)
 library(plotly)
 library(DT)
 library(shinycssloaders)
+library(leaflet)
 
 # Definición de la UI
 ui <- dashboardPage(
@@ -16,7 +17,8 @@ ui <- dashboardPage(
       menuItem("Gráficos", tabName = "graficos", icon = icon("chart-bar")),
       menuItem("Comparación", tabName = "comparacion", icon = icon("balance-scale")),
       menuItem("Datos", tabName = "datos", icon = icon("table")),
-      menuItem("Lista de Pokémon", tabName = "lista_pokemon", icon = icon("list"))
+      menuItem("Análisis Avanzado", tabName = "analisis_avanzado", icon = icon("chart-line")),  # Nuevo menú
+      menuItem("Mapa de Pokémon", tabName = "mapa_pokemon", icon = icon("map"))
     ),
     textInput('pokemon', 'Ingresa el nombre de un Pokémon', value = 'pikachu'),
     actionButton('fetch', 'Consultar Pokémon')
@@ -35,7 +37,9 @@ ui <- dashboardPage(
                                  choices = c("hp", "attack", "defense", "special-attack", "special-defense", "speed"),
                                  selected = c("hp", "attack", "defense", "special-attack", "special-defense", "speed"),
                                  inline = TRUE),
-              plotlyOutput('pokemonPlot') %>% withSpinner(color="#0dc5c1")),
+              plotlyOutput('pokemonPlot', height = 400) %>% withSpinner(color="#0dc5c1"),
+              DTOutput('statDetailTable') %>% withSpinner(color="#0dc5c1")
+      ),
       
       # Pestaña de Comparación
       tabItem(tabName = "comparacion",
@@ -54,15 +58,24 @@ ui <- dashboardPage(
       # Pestaña de Datos
       tabItem(tabName = "datos",
               h2("Datos Interactivos"),
-              DTOutput('pokemonTable') %>% withSpinner(color="#0dc5c1")),
+              DTOutput('pokemonTableEditable') %>% withSpinner(color="#0dc5c1")),
       
-      # Pestaña de Lista de Pokémon
-      tabItem(tabName = "lista_pokemon",
-              h2("Lista de Pokémon"),
-              selectInput('pokemon_select', 'Selecciona un Pokémon:', choices = NULL),
-              actionButton('show_stats', 'Mostrar Estadísticas'),
-              plotlyOutput('selectedPokemonPlot') %>% withSpinner(color="#0dc5c1"),
-              DTOutput('selectedPokemonTable') %>% withSpinner(color="#0dc5c1"))
+      # Pestaña de Análisis Avanzado
+      tabItem(tabName = "analisis_avanzado",
+              h2("Análisis Avanzado de Pokémon"),
+              DTOutput('allPokemonTable') %>% withSpinner(color="#0dc5c1"),
+              uiOutput('variableSelectors'),
+              actionButton('updatePlot', 'Actualizar Gráfico'),
+              plotlyOutput('scatterPlot') %>% withSpinner(color="#0dc5c1")),
+      
+      # Pestaña de Mapa de Pokémon
+      tabItem(tabName = "mapa_pokemon",
+              h2("Mapa de Pokémon"),
+              fluidRow(
+                column(8, leafletOutput('pokemonMap') %>% withSpinner(color="#0dc5c1")),
+                column(4, DTOutput('locationTable') %>% withSpinner(color="#0dc5c1"))
+              ),
+              DTOutput('locationPokemonTable') %>% withSpinner(color="#0dc5c1"))
     )
   )
 )
